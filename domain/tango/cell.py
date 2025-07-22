@@ -31,9 +31,9 @@ class Cell:
     def get_value_str(self) -> str:
         if self.val == -1:
             return " "
-        elif self.val == 0:
-            return "S"
         elif self.val == 1:
+            return "S"
+        elif self.val == 0:
             return "M"
         else:
             raise ValueError(f"Invalid cell value: {self.val}")
