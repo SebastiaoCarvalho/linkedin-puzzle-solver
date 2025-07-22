@@ -1,5 +1,7 @@
 from domain.tango.tango import Tango
-from domain.tango.cell import Cell
+from domain.queens.queens import Queens
+from domain.tango.cell import Cell as TangoCell
+from domain.queens.cell import Cell as QueensCell
 from domain.tango.border import Border
 
 class PuzzleParser:
@@ -38,13 +40,13 @@ class PuzzleParser:
                 borders.append(row_borders)
         return Tango(cells, borders)
 
-    def parse_tango_cell(self, row : int, col : int, char : int) -> Cell:
+    def parse_tango_cell(self, row : int, col : int, char : int) -> TangoCell:
         value = -1
         if char == 'S':
             value = 0
         elif char == 'M':
             value = 1
-        return Cell(row, col, value)
+        return TangoCell(row, col, value)
     
     def parse_tango_border(self, row : int, col : int, char : str, is_horizontal : bool) -> Border:
         value = -1
@@ -54,4 +56,16 @@ class PuzzleParser:
             value = 1
         return Border(row, col, value, is_horizontal)
             
+
+    def parse_queens(self, puzzle_str: str) -> Queens:
+        lines = puzzle_str.splitlines()
+        cells = []
+        for i in range(len(lines)):
+            row_cells = []
+            for j, char in enumerate(lines[i]):
+                cell = QueensCell(i, j, char, -1)
+                row_cells.append(cell)
+            cells.append(row_cells)
+        return Queens(cells)
+    
     
