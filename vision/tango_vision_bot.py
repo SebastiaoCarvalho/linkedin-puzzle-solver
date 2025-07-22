@@ -72,7 +72,7 @@ class TangoVisionBot(VisionBot):
     """
     Get the classification of a cell image. 1 for sun, 0 for moon, -1 for emoty.
     """
-    def classify_cell(self, cell_image: Image) -> int:
+    def classify_cell(self, cell_image: Image.Image) -> int:
         # Convert to numpy array and then to HSV
         cell_array = np.array(cell_image)
         hsv_cell = cv2.cvtColor(cell_array, cv2.COLOR_RGB2HSV)

@@ -1,8 +1,8 @@
-from parser.puzzle_parser import PuzzleParser
 from encoding.tango.tango_encoder import TangoEncoder
 from encoding.queens.queens_encoder import QueensEncoder
-from z3 import Solver, sat
 from vision.tango_vision_bot import TangoVisionBot
+from vision.queens_vision_bot import QueensVisionBot
+from z3 import Solver, sat
 import sys
 import time
 
@@ -27,31 +27,7 @@ if __name__=="__main__":
     if puzzle_name == "tango":
         vision_bot = TangoVisionBot()
     elif puzzle_name == "queens":
-        # Temp testing
-        file_name = "examples/queens/1.txt"
-        file_content = ""
-        with open(file_name, 'r') as file:
-            file_content = file.read()
-        parser = PuzzleParser()
-        puzzle = parser.parse_queens(file_content)
-        print("Starting puzzle:")
-        print(puzzle.get_board())
-        solver = Solver()
-        QueensEncoder.encode(solver, puzzle)
-        if solver.check() == sat:
-            model = solver.model()
-            cells = puzzle.get_cells()
-            for var in model:
-                var_split = str(var).split('_')
-                row = int(var_split[1])
-                col = int(var_split[2])
-                cell = cells[row][col]
-                cell.update_value(1 if model[var] else 0)
-            print("Solution found:")
-            print(puzzle.get_board())
-        else:
-            print("No solution found.")
-        sys.exit(0)
+        vision_bot = QueensVisionBot()
 
     print("Waiting 3 seconds before taking a screenshot...")
     time.sleep(3)  # Wait for 3 seconds before taking a screenshot
@@ -65,6 +41,8 @@ if __name__=="__main__":
     solver = Solver()
     if puzzle_name == "tango":
         encoder_class = TangoEncoder
+    elif puzzle_name == "queens":
+        encoder_class = QueensEncoder
     
     encoder_class.encode(solver, puzzle)
 
