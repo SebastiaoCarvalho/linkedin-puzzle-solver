@@ -11,25 +11,24 @@ class No3Consecutives(Encoder):
         cells = puzzle.get_cells()
         rows = len(cells)
         cols = len(cells[0])
-        
         # Forbid 3 consecutive suns or moons in rows
         for i in range(rows):
             for j in range(cols - 2):
                 solver.add(
                     Not(
                         And(
-                            cells[i][j].get_variable() == 0,
-                            cells[i][j + 1].get_variable() == 0,
-                            cells[i][j + 2].get_variable() == 0
+                            Not(cells[i][j].get_variable()),
+                            Not(cells[i][j + 1].get_variable()),
+                            Not(cells[i][j + 2].get_variable())
                         )
                     )
                 )
                 solver.add(
                     Not(
                         And(
-                            cells[i][j].get_variable() == 1,
-                            cells[i][j + 1].get_variable() == 1,
-                            cells[i][j + 2].get_variable() == 1
+                            cells[i][j].get_variable(),
+                            cells[i][j + 1].get_variable(),
+                            cells[i][j + 2].get_variable()
                         )
                     )
                 )
@@ -39,18 +38,18 @@ class No3Consecutives(Encoder):
                 solver.add(
                     Not(
                         And(
-                            cells[i][j].get_variable() == 0,
-                            cells[i + 1][j].get_variable() == 0,
-                            cells[i + 2][j].get_variable() == 0
+                            Not(cells[i][j].get_variable()),
+                            Not(cells[i + 1][j].get_variable()),
+                            Not(cells[i + 2][j].get_variable())
                         )
                     )
                 )
                 solver.add(
                     Not(
                         And(
-                            cells[i][j].get_variable() == 1,
-                            cells[i + 1][j].get_variable() == 1,
-                            cells[i + 2][j].get_variable() == 1
+                            cells[i][j].get_variable(),
+                            cells[i + 1][j].get_variable(),
+                            cells[i + 2][j].get_variable()
                         )
                     )
                 )

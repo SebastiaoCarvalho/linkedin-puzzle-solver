@@ -5,7 +5,7 @@ from domain.tango.border import Border
 class PuzzleParser:
     
     def parse_tango(self, puzzle_str: str) -> Tango:
-        lines = puzzle_str.rstrip().splitlines()
+        lines = puzzle_str.splitlines()
         cells = []
         borders = []
         for i in range(len(lines)):
@@ -36,8 +36,6 @@ class PuzzleParser:
                     else:
                         continue
                 borders.append(row_borders)
-        print(lines[0])
-        print([cell.get_value_str() for cell in cells[0]])
         return Tango(cells, borders)
 
     def parse_tango_cell(self, row : int, col : int, char : int) -> Cell:

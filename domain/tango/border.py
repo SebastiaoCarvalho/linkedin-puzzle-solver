@@ -8,6 +8,21 @@ class Border:
         self.val = val
         self.horizontal_border = horizontal_border
 
+    def get_row(self) -> int:
+        return self.row
+    
+    def get_col(self) -> int:
+        return self.col
+
+    def is_equal(self) -> bool:
+        return self.val == 0
+    
+    def is_different(self) -> bool:
+        return self.val == 1
+    
+    def is_horizontal(self) -> bool:
+        return self.horizontal_border
+
     def get_value_str(self) -> str:
         char = ""
         if self.val == -1:
