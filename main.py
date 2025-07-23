@@ -61,6 +61,7 @@ if __name__=="__main__":
             cell = cells[row][col]
             cell.update_value(1 if model[var] else 0)
         print(puzzle.get_board())
+        vision_bot.apply_changes(puzzle)
 
     else:
         print(solver.unsat_core())
