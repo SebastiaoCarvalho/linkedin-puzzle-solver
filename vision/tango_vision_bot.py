@@ -4,7 +4,7 @@ from domain.tango.border import Border
 from vision.vision_bot import VisionBot
 import numpy as np
 import cv2
-from PIL import Image
+from PIL import Image, ImageDraw
 
 """
 Vision bot for Tango puzzles.
@@ -15,6 +15,7 @@ class TangoVisionBot(VisionBot):
         super().__init__()
         self.cell_coordinates = []
         self.whole_screenshot = None
+        self.offsets = []
         self.sun_color_range = {
             'lower': np.array([10, 130, 130]),  # Orange/yellow lower bound
             'upper': np.array([25, 255, 255])   # Orange/yellow upper bound
@@ -38,6 +39,7 @@ class TangoVisionBot(VisionBot):
         padding = 300
         center = (self.screenshot.width // 2, self.screenshot.height // 2)
         new_image_array = np.array(self.screenshot)[center[1] - padding:center[1] + padding, center[0] - padding:center[0] + padding]
+        self.offsets.append((center[0] - padding, center[1] - padding))
         self.whole_screenshot = self.screenshot.copy()
         self.screenshot = Image.fromarray(new_image_array)
         self.screenshot.save("screenshot_cropped.png")
@@ -66,6 +68,7 @@ class TangoVisionBot(VisionBot):
         bottom_right = (x + w + image_padding, y + w + image_padding)
         
         cropped_array = np.array(self.screenshot)[top_left[1]:bottom_right[1], top_left[0]:bottom_right[0]]
+        self.offsets.append(top_left)
         self.screenshot = Image.fromarray(cropped_array)
         self.screenshot.save("screenshot_final.png")
     
@@ -119,6 +122,14 @@ class TangoVisionBot(VisionBot):
             for j in range(grid_size):
                 row.append(Cell(i, j, grid[i][j]))
             cells.append(row)
+        self.cell_coordinates = []
+        for i in range(grid_size):
+            row_coords = []
+            for j in range(grid_size):
+                x = self.offsets[0][0] + self.offsets[1][0] + j * piece_width + piece_width // 2
+                y = self.offsets[0][1] + self.offsets[1][1] + i * piece_height + piece_height // 2
+                row_coords.append((x, y))
+            self.cell_coordinates.append(row_coords)
         borders = []
         for i in range(grid_size):
             vertical_borders = []
@@ -137,4 +148,23 @@ class TangoVisionBot(VisionBot):
     Based on the cells of the solved puzzle, apply changes to the screen.
     """
     def apply_changes(self, puzzle: Tango):
-        pass
+        cells = puzzle.get_cells()
+        marked_image = self.whole_screenshot.copy()
+        draw = ImageDraw.Draw(marked_image)
+        for i in range(len(cells)):
+            for j in range(len(cells[i])):
+                coords = self.cell_coordinates[i][j]
+                size = 30
+                if cells[i][j].get_value_str() == "S":
+                    print(f"Placing sun at ({i}, {j}) with coordinates {coords}")
+                    self.click(coords[0], coords[1])
+                    self.click(coords[0], coords[1])  # Double click to place the queen
+                    draw.ellipse([coords[0] - size//2, coords[1] - size//2, coords[0] + size//2, coords[1] + size//2], 
+                    outline=(255, 0, 0), width=3)
+                elif cells[i][j].get_value_str() == "M":
+                    print(f"Placing moon at ({i}, {j}) with coordinates {coords}")
+                    self.click(coords[0], coords[1])
+                    self.click(coords[0], coords[1])
+                    draw.ellipse([coords[0] - size//2, coords[1] - size//2, coords[0] + size//2, coords[1] + size//2],
+                    outline=(0, 0, 255), width=3)
+        marked_image.save("marked_screenshot.png")
