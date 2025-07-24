@@ -2,6 +2,9 @@ from domain.puzzle import Puzzle
 from domain.queens.cell import Cell
 
 class Queens(Puzzle):
+    """
+    Class representing a Queens puzzle.
+    """
 
     def __init__(self, cells: list[list[Cell]]):
         self.cells = cells

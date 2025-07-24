@@ -3,6 +3,9 @@ from domain.queens.queens import Queens
 from encoding.encoder import Encoder
 
 class OnePerRowColumn(Encoder):
+    """
+    One queen per row and one queen per column.
+    """
 
     @staticmethod
     def encode(solver : Solver, puzzle : Queens):

@@ -3,6 +3,9 @@ from domain.queens.queens import Queens
 from encoding.encoder import Encoder
 
 class OneQueenPerColor(Encoder):
+    """
+    Ensure that there is exactly one queen for each color in the puzzle.
+    """
 
     @staticmethod
     def encode(solver: Solver, puzzle: Queens):

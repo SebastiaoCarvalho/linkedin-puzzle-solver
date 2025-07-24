@@ -5,10 +5,10 @@ import numpy as np
 import cv2
 from PIL import Image, ImageDraw
 
-"""
-Vision bot for Tango puzzles.
-"""
 class QueensVisionBot(VisionBot):
+    """
+    Vision bot for Tango puzzles.
+    """
 
     def __init__(self):
         super().__init__()
@@ -16,10 +16,10 @@ class QueensVisionBot(VisionBot):
         self.whole_screenshot = None
         self.offsets = []
 
-    """
-    Detect the game board in the screenshot.
-    """
     def detect_game_board(self):
+        """
+        Detect the game board in the screenshot.
+        """
         
         # TODO: Implement the game board detection logic.
         # General idea is to start in the center and keep expanding outwards
@@ -55,10 +55,11 @@ class QueensVisionBot(VisionBot):
         self.screenshot = Image.fromarray(cropped)
         self.screenshot.save("screenshot_board.png")
 
-    """
-    Get the color of the cell based on its image.
-    """
     def get_color_code(self, cell : Image.Image, color_map : dict) -> str:
+        """
+        Get the color of the cell based on its image.
+        """
+
         height, width = cell.size
         bgr_color = np.array(cell)[height // 2, width // 2]
         rgb_color = bgr_color[::-1]  # Convert BGR to RGB
@@ -70,10 +71,11 @@ class QueensVisionBot(VisionBot):
             color_map[color_hex] = next
             return next
 
-    """
-    Convert screenshot to Tango object.
-    """
     def parse_screenshot(self) -> Queens:
+        """
+        Convert screenshot to Tango object.
+        """
+
         if self.screenshot is None:
             raise ValueError("No screenshot taken. Please take a screenshot before parsing.")
         
@@ -105,10 +107,11 @@ class QueensVisionBot(VisionBot):
             cells.append(row)
         return Queens(cells)
 
-    """
-    Based on the cells of the solved puzzle, apply changes to the screen.
-    """
     def apply_changes(self, puzzle: Queens):
+        """
+        Based on the cells of the solved puzzle, apply changes to the screen.
+        """
+
         cells = puzzle.get_cells()
         marked_image = self.whole_screenshot.copy()
         draw = ImageDraw.Draw(marked_image)

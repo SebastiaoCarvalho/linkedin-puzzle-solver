@@ -2,37 +2,41 @@ from domain.puzzle import Puzzle
 import pyautogui
 from pynput import mouse
 
-"""
-Base class for vision bot
-"""
 class VisionBot:
+    """
+    Base class for vision bot
+    """
 
     def __init__(self):
         self.screenshot = None
         self.mouse = mouse.Controller()
 
-    """
-    Screenshot the current screen.
-    """
     def take_screenshot(self):
+        """
+        Screenshot the current screen.
+        """
+
         self.screenshot = pyautogui.screenshot()
         self.screenshot.save("screenshot.png")
     
-    """
-    Parse the screenshot and return a Puzzle object.
-    """
     def parse_screenshot(self) -> Puzzle:
+        """
+        Parse the screenshot and return a Puzzle object.
+        """
+
         raise NotImplementedError("This method should be implemented by subclasses.")
     
-    """
-    Click on screen coordinates
-    """
     def click(self, x: int, y: int):
+        """
+        Click on screen coordinates
+        """
+
         self.mouse.position = (x, y)
         self.mouse.click(mouse.Button.left, 1)
     
-    """
-    Apply changes of puzzle to the screen.
-    """
     def apply_changes(self, puzzle: Puzzle):
+        """
+        Apply changes of puzzle to the screen.
+        """
+
         raise NotImplementedError("This method should be implemented by subclasses.")

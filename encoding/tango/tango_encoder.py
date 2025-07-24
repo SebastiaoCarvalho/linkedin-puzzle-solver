@@ -6,11 +6,12 @@ from encoding.tango.equal_number import EqualNumber
 from encoding.tango.static_cells import StaticCells
 from encoding.tango.border_constraints import BorderConstraints
 
-"""
-Encoder for Tango puzzles.
-"""
 
 class TangoEncoder(Encoder):
+    """
+    Encoder for Tango puzzles.
+    """
+
     @staticmethod
     def encode(solver: Solver, puzzle: Tango):
         No3Consecutives.encode(solver, puzzle)

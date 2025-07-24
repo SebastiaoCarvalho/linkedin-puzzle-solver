@@ -2,11 +2,12 @@ from encoding.encoder import Encoder
 from z3 import Solver
 from domain.tango.tango import Tango
 
-"""
-Borders with equal ensure the cells on either side have the same value.
-Borders with different ensure the cells on either side have different values.
-"""
 class BorderConstraints(Encoder):
+    """
+    Borders with equal ensure the cells on either side have the same value.
+    Borders with different ensure the cells on either side have different values.
+    """
+
     @staticmethod
     def encode(solver: Solver, puzzle: Tango):
         borders = puzzle.get_borders()

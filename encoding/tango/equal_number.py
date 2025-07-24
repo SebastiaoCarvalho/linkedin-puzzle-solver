@@ -2,10 +2,11 @@ from encoding.encoder import Encoder
 from z3 import Solver, Sum
 from domain.tango.tango import Tango
 
-"""
-Need an equal number of Suns and Moons in each row and column.
-"""
 class EqualNumber(Encoder):
+    """
+    Need an equal number of Suns and Moons in each row and column.
+    """
+
     @staticmethod
     def encode(solver: Solver, puzzle: Tango):
         cells = puzzle.get_cells()

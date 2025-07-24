@@ -3,6 +3,10 @@ from domain.tango.cell import Cell
 from domain.tango.border import Border
 
 class Tango(Puzzle):
+    """
+    Class representing a Tango puzzle.
+    """
+
     def __init__(self, cells : list[list[Cell]], borders : list[list[Border]]):
         self.cells = cells
         self.borders = borders

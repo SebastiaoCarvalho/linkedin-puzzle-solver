@@ -6,10 +6,10 @@ import numpy as np
 import cv2
 from PIL import Image, ImageDraw
 
-"""
-Vision bot for Tango puzzles.
-"""
 class TangoVisionBot(VisionBot):
+    """
+    Vision bot for Tango puzzles.
+    """
 
     def __init__(self):
         super().__init__()
@@ -59,10 +59,10 @@ class TangoVisionBot(VisionBot):
         for (i, template) in enumerate(self.empty_templates):
             cv2.imwrite(f"empty_template_{i}.png", template)
 
-    """
-    Detect the game board in the screenshot.
-    """
     def detect_game_board(self):
+        """
+        Detect the game board in the screenshot.
+        """
         
         # TODO: Implement the game board detection logic.
         # General idea is to start in the center and keep expanding outwards
@@ -105,10 +105,11 @@ class TangoVisionBot(VisionBot):
         self.screenshot = Image.fromarray(cropped_array)
         self.screenshot.save("screenshot_final.png")
     
-    """
-    Get the classification of a cell image. 1 for sun, 0 for moon, -1 for emoty.
-    """
     def classify_cell(self, cell_image: Image.Image) -> int:
+        """
+        Get the classification of a cell image. 1 for sun, 0 for moon, -1 for emoty.
+        """
+
         # Convert to numpy array and then to HSV
         cell_array = np.array(cell_image)
         hsv_cell = cv2.cvtColor(cell_array, cv2.COLOR_RGB2HSV)
@@ -131,10 +132,10 @@ class TangoVisionBot(VisionBot):
         else:
             return -1
         
-    """
-    Classify the border image. Returns 1 for x, 0 for =, -1 for - or |.
-    """
     def classify_border(self, border_image : Image.Image, i, j, is_horizontal : bool) -> int:
+        """
+        Classify the border image. Returns 1 for x, 0 for =, -1 for - or |.
+        """
 
         binary = self.convert_to_binary(border_image)
         #border_image.save(f"border_image_{i}_{j}.png")
@@ -165,6 +166,7 @@ class TangoVisionBot(VisionBot):
         """
         Convert an image to a binary numpy array.
         """
+
         # Convert to grayscale
         gray = cv2.cvtColor(np.array(image), cv2.COLOR_BGR2GRAY)
 
@@ -184,10 +186,11 @@ class TangoVisionBot(VisionBot):
         binary = cv2.morphologyEx(binary, cv2.MORPH_OPEN, kernel)
         return binary
 
-    """
-    Convert screenshot to Tango object.
-    """
     def parse_screenshot(self) -> Tango:
+        """
+        Convert screenshot to Tango object.
+        """
+
         if self.screenshot is None:
             raise ValueError("No screenshot taken. Please take a screenshot before parsing.")
         
@@ -247,10 +250,11 @@ class TangoVisionBot(VisionBot):
             borders.append(row_borders)
         return Tango(cells, borders)
 
-    """
-    Based on the cells of the solved puzzle, apply changes to the screen.
-    """
     def apply_changes(self, puzzle: Tango):
+        """
+        Based on the cells of the solved puzzle, apply changes to the screen.
+        """
+
         cells = puzzle.get_cells()
         marked_image = self.whole_screenshot.copy()
         draw = ImageDraw.Draw(marked_image)

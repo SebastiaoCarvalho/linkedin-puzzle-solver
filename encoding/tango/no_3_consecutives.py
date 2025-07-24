@@ -2,10 +2,11 @@ from encoding.encoder import Encoder
 from z3 import Solver, Not, And
 from domain.tango.tango import Tango
 
-"""
-Cannot have 3 suns or moons consecutively in a row or column.
-"""
 class No3Consecutives(Encoder):
+    """
+    Cannot have 3 suns or moons consecutively in a row or column.
+    """
+
     @staticmethod
     def encode(solver : Solver, puzzle : Tango):
         cells = puzzle.get_cells()

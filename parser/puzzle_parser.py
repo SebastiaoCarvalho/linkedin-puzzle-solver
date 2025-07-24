@@ -5,7 +5,11 @@ from domain.queens.cell import Cell as QueensCell
 from domain.tango.border import Border
 
 class PuzzleParser:
-    
+    """
+    Utility class to parse textual representations of puzzles into their respective domain objects.
+    Used for testing purposes.
+    """
+
     def parse_tango(self, puzzle_str: str) -> Tango:
         lines = puzzle_str.splitlines()
         cells = []

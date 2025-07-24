@@ -1,6 +1,9 @@
 from z3 import Bool
 
 class Cell:
+    """
+    Represents a cell in a grid. Can have 3 possible states: empty, queen, or blocked.
+    """
 
     def __init__(self, row, col, color, val=-1):
         self.id = Bool(f"cell_{row}_{col}")

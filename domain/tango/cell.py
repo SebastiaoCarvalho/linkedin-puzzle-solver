@@ -1,8 +1,9 @@
-"""
-Represents a cell in a grid. Can have 3 possible states: empty, sun or moon.
-"""
 from z3 import Bool
+
 class Cell:
+    """
+    Represents a cell in a grid. Can have 3 possible states: empty, sun or moon.
+    """
 
     def __init__(self, row: int, col: int, val : int):
         self.id = Bool(f"cell_{row}_{col}")

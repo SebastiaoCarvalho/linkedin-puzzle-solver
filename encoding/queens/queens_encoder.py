@@ -7,6 +7,9 @@ from encoding.queens.one_queen_per_color import OneQueenPerColor
 
 
 class QueensEncoder(Encoder):
+    """
+    Encodes the constraints for the Queens puzzle.
+    """
 
     @staticmethod
     def encode(solver : Solver, puzzle : Queens):

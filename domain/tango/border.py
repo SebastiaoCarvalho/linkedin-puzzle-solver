@@ -1,7 +1,8 @@
-"""
-Represents the border between two cells in a grid. Can be thre possible states: normal, equal or different.
-"""
 class Border:
+    """
+    Represents the border between two cells in a grid. Can be thre possible states: normal, equal or different.
+    """
+
     def __init__(self, row: int, col: int, val: int, horizontal_border: bool = False):
         self.row = row
         self.col = col

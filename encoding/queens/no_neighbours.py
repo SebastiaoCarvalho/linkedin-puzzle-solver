@@ -3,6 +3,9 @@ from domain.queens.queens import Queens
 from encoding.encoder import Encoder
 
 class NoNeighbours(Encoder):
+    """
+    Queens cannot be in adjacent cells (including diagonals).
+    """
 
     @staticmethod
     def encode(solver : Solver, puzzle : Queens):

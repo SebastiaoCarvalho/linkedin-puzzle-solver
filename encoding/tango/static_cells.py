@@ -2,10 +2,11 @@ from encoding.encoder import Encoder
 from z3 import Solver, Not
 from domain.tango.tango import Tango
 
-"""
-Cells that are static and do not change their state.
-"""
 class StaticCells(Encoder):
+    """
+    Cells that are static and do not change their state.
+    """
+
     @staticmethod
     def encode(solver: Solver, puzzle: Tango):
         for row in puzzle.get_cells():
