@@ -21,5 +21,5 @@ First, log in to Linkedin and choose the puzzle you want to solve. Then, run the
 
 python3 main.py <puzzle_name>
 ```
-Replace `<puzzle_name>` with the name of the puzzle you want to solve. 
+Replace `<puzzle_name>` with the name of the puzzle you want to solve (tango | queens).
 
