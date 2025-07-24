@@ -26,6 +26,39 @@ class TangoVisionBot(VisionBot):
             'upper': np.array([130, 255, 255])  # Blue upper bound
         }
 
+
+        # self.x_templates = [
+        #     np.array(Image.open(f"vision/samples/x_horiz.png")),
+        #     np.array(Image.open(f"vision/samples/x_vert.png"))
+        # ]
+        # self.eq_templates = [
+        #     np.array(Image.open(f"vision/samples/equals_horiz.png")),
+        #     np.array(Image.open(f"vision/samples/equals_vert.png"))
+        # ]
+        # self.empty_templates = [
+        #     np.array(Image.open(f"vision/samples/empty_horiz.png")),
+        #     np.array(Image.open(f"vision/samples/empty_vert.png"))
+        # ]
+
+        self.x_templates = [ 
+            self.convert_to_binary(Image.open(f"vision/samples/x_horiz.png")), 
+            self.convert_to_binary(Image.open(f"vision/samples/x_vert.png"))
+        ]
+        self.eq_templates = [
+            self.convert_to_binary(Image.open(f"vision/samples/equals_horiz.png")),
+            self.convert_to_binary(Image.open(f"vision/samples/equals_vert.png"))
+        ]
+        self.empty_templates = [
+            self.convert_to_binary(Image.open(f"vision/samples/empty_horiz.png")),
+            self.convert_to_binary(Image.open(f"vision/samples/empty_vert.png"))
+        ]
+        for (i, template) in enumerate(self.x_templates):
+            cv2.imwrite(f"x_template_{i}.png", template)
+        for (i, template) in enumerate(self.eq_templates):
+            cv2.imwrite(f"eq_template_{i}.png", template)
+        for (i, template) in enumerate(self.empty_templates):
+            cv2.imwrite(f"empty_template_{i}.png", template)
+
     """
     Detect the game board in the screenshot.
     """
@@ -97,6 +130,59 @@ class TangoVisionBot(VisionBot):
         
         else:
             return -1
+        
+    """
+    Classify the border image. Returns 1 for x, 0 for =, -1 for - or |.
+    """
+    def classify_border(self, border_image : Image.Image, i, j, is_horizontal : bool) -> int:
+
+        binary = self.convert_to_binary(border_image)
+        #border_image.save(f"border_image_{i}_{j}.png")
+        cv2.imwrite(f"border_binary_{i}_{j}.png", binary)
+
+        all_results = []
+        best_score = 0
+        best_index = 0
+        template_index = 0 if is_horizontal else 1
+        templates = [self.x_templates[template_index], self.eq_templates[template_index], self.empty_templates[template_index]]
+        for index, template in enumerate(templates):
+            different_pixels = np.sum(template != binary)
+            total_pixels = binary.size
+            score = 1.0 - (different_pixels / total_pixels)
+            if score > best_score:
+                best_score = score
+                best_index = index
+            all_results.append(score)
+        print(f"Border classification for ({i}, {j}, {'horizontal' if is_horizontal else 'vertical'}): {all_results}, best index: {best_index}, score: {best_score}")
+        cv2.imwrite(f"border_binary_{i}_{j}_best.png", templates[best_index])
+        if best_index == 0:
+            return 1  # x
+        elif best_index == 1:
+            return 0 # =
+        return - 1
+    
+    def convert_to_binary(self, image: Image.Image) -> np.ndarray:
+        """
+        Convert an image to a binary numpy array.
+        """
+        # Convert to grayscale
+        gray = cv2.cvtColor(np.array(image), cv2.COLOR_BGR2GRAY)
+
+        # Remove light gray and convert it to white
+        gray[gray > 200] = 255
+
+        # Apply Gaussian blur to reduce noise
+        blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+
+        # Apply adaptive thresholding for better edge detection
+        binary = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_MEAN_C, 
+                                     cv2.THRESH_BINARY_INV, 15, 4)
+
+        # Apply morphological operations to clean up the binary image
+        kernel = np.ones((2, 2), np.uint8)
+        binary = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel)
+        binary = cv2.morphologyEx(binary, cv2.MORPH_OPEN, kernel)
+        return binary
 
     """
     Convert screenshot to Tango object.
@@ -114,6 +200,27 @@ class TangoVisionBot(VisionBot):
             for j in range(grid_size):
                 piece = self.screenshot.crop((j * piece_width, i * piece_height, (j + 1) * piece_width, (i + 1) * piece_height))
                 pieces.append(piece)
+        border_pieces = []
+        for i in range(grid_size):
+            vertical_borders = []
+            horizontal_borders = []
+            # Vertical borders
+            for j in range(grid_size - 1):
+                center = ((j + 1) * piece_width, (i + 0.5) * piece_height)
+                padding = 10
+                piece = self.screenshot.crop((center[0] - padding, center[1] - padding, center[0] + padding, center[1] + padding))
+                vertical_borders.append(piece)
+            border_pieces.append(vertical_borders)
+            if i >= grid_size - 1:
+                continue
+            # Horizontal borders
+            for j in range(grid_size):
+                center = ((j + 0.5) * piece_width, (i + 1) * piece_height)
+                padding = 10
+                piece = self.screenshot.crop((center[0] - padding, center[1] - padding, center[0] + padding, center[1] + padding))
+                horizontal_borders.append(piece)
+            border_pieces.append(horizontal_borders)
+
         classifications = [self.classify_cell(piece) for piece in pieces]
         grid = np.array(classifications).reshape((grid_size, grid_size))
         cells = []
@@ -131,17 +238,13 @@ class TangoVisionBot(VisionBot):
                 row_coords.append((x, y))
             self.cell_coordinates.append(row_coords)
         borders = []
-        for i in range(grid_size):
-            vertical_borders = []
-            horizontal_borders = []
-            for j in range(grid_size - 1):
-                vertical_borders.append(Border(i, j, -1, False))  # Placeholder for vertical borders
-            borders.append(vertical_borders)
-            if i >= grid_size - 1:
-                continue
-            for j in range(grid_size):
-                horizontal_borders.append(Border(i, j, -1, True))
-            borders.append(horizontal_borders)
+        for i in range(len(border_pieces)):
+            row_borders = []
+            for j in range(len(border_pieces[i])):
+                border_image = border_pieces[i][j]
+                classification = self.classify_border(border_image, i, j, i % 2 == 1)
+                row_borders.append(Border(i // 2, j, classification, i % 2 == 1))
+            borders.append(row_borders)
         return Tango(cells, borders)
 
     """
