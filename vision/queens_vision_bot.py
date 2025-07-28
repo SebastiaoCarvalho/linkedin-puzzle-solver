@@ -70,6 +70,43 @@ class QueensVisionBot(VisionBot):
             next = chr(ord('A') + len(color_map))
             color_map[color_hex] = next
             return next
+        
+    def get_grid_size(self) -> int:
+        """
+        Get the size of the grid.
+        """
+
+        if self.screenshot is None:
+            raise ValueError("No screenshot taken. Please take a screenshot before getting grid size.")
+        
+        image_array = np.array(self.screenshot)
+        image_array[image_array > 20] = 255  # Threshold to make sure we have a binary image
+        image_array[image_array <= 20] = 0
+        
+        # Find a row where not all pixels are black
+        row_index = self.screenshot.height // 2
+        all_black = np.all(image_array[row_index, :] == 0)
+        while all_black:
+            row_index -= 1
+            if row_index < 0:
+                raise ValueError("Could not find a valid row in the screenshot.")
+            all_black = np.all(image_array[row_index, :] == 0)
+        
+        # Find the sequences of black pixels in the row
+        row = image_array[row_index, :]
+        black_pixel_sequences = []
+        current_sequence_length = 0
+        for pixel in row:
+            if np.all(pixel == 0):
+                current_sequence_length += 1
+            else:
+                if current_sequence_length > 0:
+                    black_pixel_sequences.append(current_sequence_length)
+                current_sequence_length = 0
+        if current_sequence_length > 0:
+            black_pixel_sequences.append(current_sequence_length)
+        
+        return len(black_pixel_sequences) - 1
 
     def parse_screenshot(self) -> Queens:
         """
@@ -78,9 +115,9 @@ class QueensVisionBot(VisionBot):
 
         if self.screenshot is None:
             raise ValueError("No screenshot taken. Please take a screenshot before parsing.")
-        
-        # Split in 8 * 8 grid
-        grid_size = 8
+        # Split in n * n grid
+        grid_size = self.get_grid_size()
+        print(grid_size)
         piece_width = self.screenshot.width // grid_size
         piece_height = self.screenshot.height // grid_size
         pieces = []
