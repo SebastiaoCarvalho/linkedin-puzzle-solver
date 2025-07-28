@@ -5,7 +5,7 @@
 ## Currently Supported Puzzles
 
 - **Tango** (under development)
-- **Queens** (works for 8x8 boards)
+- **Queens**
 
 ## Installation
 
@@ -22,4 +22,8 @@ First, log in to Linkedin and choose the puzzle you want to solve. Then, run the
 python3 main.py <puzzle_name>
 ```
 Replace `<puzzle_name>` with the name of the puzzle you want to solve (tango | queens).
+
+## Contributing
+
+If you want to contribute to this project, feel free to open an issue or a pull request. Any contributions are welcome!
 
