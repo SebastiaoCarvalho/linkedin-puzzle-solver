@@ -139,7 +139,7 @@ class TangoVisionBot(VisionBot):
 
         binary = self.convert_to_binary(border_image)
         #border_image.save(f"border_image_{i}_{j}.png")
-        cv2.imwrite(f"border_binary_{i}_{j}.png", binary)
+        #cv2.imwrite(f"border_binary_{i}_{j}.png", binary)
 
         all_results = []
         best_score = 0
@@ -155,12 +155,99 @@ class TangoVisionBot(VisionBot):
                 best_index = index
             all_results.append(score)
         print(f"Border classification for ({i}, {j}, {'horizontal' if is_horizontal else 'vertical'}): {all_results}, best index: {best_index}, score: {best_score}")
-        cv2.imwrite(f"border_binary_{i}_{j}_best.png", templates[best_index])
+        #cv2.imwrite(f"border_binary_{i}_{j}_best.png", templates[best_index])
         if best_index == 0:
             return 1  # x
         elif best_index == 1:
             return 0 # =
         return - 1
+    
+    def get_borders(self, grid_size : int, piece_width : float, piece_height : float) -> list[list[Border]]:
+        hsv = cv2.cvtColor(np.array(self.screenshot), cv2.COLOR_RGB2HSV)
+
+        # Create masks for sun and moon colors
+        sun_mask = cv2.inRange(hsv, self.sun_color_range['lower'], self.sun_color_range['upper'])
+        moon_mask = cv2.inRange(hsv, self.moon_color_range['lower'], self.moon_color_range['upper'])
+
+        combined_mask = cv2.bitwise_or(sun_mask, moon_mask)
+
+        image_array = np.array(self.screenshot)
+        # Remove sun and moon pixels from the image
+        non_zero_points = cv2.findNonZero(combined_mask)
+        if non_zero_points is not None:
+            for point in non_zero_points:
+                x, y = point[0]
+                image_array[y, x] = [255, 255, 255]
+        image_array = cv2.cvtColor(image_array, cv2.COLOR_RGB2GRAY)
+
+        # Filter to have only = and x
+        MASK_OPERATORS = 155
+        image_array[image_array < MASK_OPERATORS] = 0  # Set dark pixels to black
+        image_array[image_array >= MASK_OPERATORS] = 255  # Set light pixels to white
+        cv2.imwrite("screenshot_mask.png", image_array)
+
+        min_length = 7
+        # Create structural elements for different line orientations
+        # Horizontal lines
+        horizontal_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (min_length, 1))
+        # Diagonal lines (45 degrees)
+        diagonal1_kernel = np.eye(min_length, dtype=np.uint8)
+        # Anti-diagonal lines (-45 degrees)
+        diagonal2_kernel = np.fliplr(np.eye(min_length, dtype=np.uint8))
+
+        inverted_image = cv2.bitwise_not(image_array)
+        
+        # Extract lines using morphological opening
+        horizontal_lines = cv2.morphologyEx(inverted_image, cv2.MORPH_OPEN, horizontal_kernel)
+        diagonal1_lines = cv2.morphologyEx(inverted_image, cv2.MORPH_OPEN, diagonal1_kernel)
+        diagonal2_lines = cv2.morphologyEx(inverted_image, cv2.MORPH_OPEN, diagonal2_kernel)
+
+        # Cross is two diagonals combined
+        cross = diagonal1_lines + diagonal2_lines
+        cross = np.clip(cross, 0, 1)
+
+        cross_image = Image.fromarray(cv2.bitwise_not(np.where(cross == 1, 255, 0).astype(np.uint8)))
+        cross_image.save("screenshot_cross_lines.png")
+
+        horizontal_lines_image = Image.fromarray(cv2.bitwise_not(np.where(np.clip(horizontal_lines, 0, 1) == 1, 255, 0).astype(np.uint8)))
+        horizontal_lines_image.save("screenshot_horizontal_lines.png")
+
+        borders = []
+        for i in range(grid_size):
+            vertical_borders = []
+            horizontal_borders = []
+            # Vertical borders
+            for j in range(grid_size - 1):
+                center = ((j + 1) * piece_width, (i + 0.5) * piece_height)
+                padding = 15
+                horizontal_piece = horizontal_lines_image.crop((center[0] - padding, center[1] - padding, center[0] + padding, center[1] + padding))
+                cross_piece = cross_image.crop((center[0] - padding, center[1] - padding, center[0] + padding, center[1] + padding))
+                val = -1
+                if np.any(np.array(horizontal_piece) == 0): # =
+                    val = 0
+                elif np.any(np.array(cross_piece) == 0): # x
+                    val = 1
+                print(f"Border classification for ({i}, {j}, vertical): {val}")
+                vertical_borders.append(Border(i, j, val, False))
+            borders.append(vertical_borders)
+            if i >= grid_size - 1:
+                continue
+            # Horizontal borders
+            for j in range(grid_size):
+                center = ((j + 0.5) * piece_width, (i + 1) * piece_height)
+                padding = 15
+                horizontal_piece = horizontal_lines_image.crop((center[0] - padding, center[1] - padding, center[0] + padding, center[1] + padding))
+                cross_piece = cross_image.crop((center[0] - padding, center[1] - padding, center[0] + padding, center[1] + padding))
+                val = -1
+                if np.any(np.array(horizontal_piece) == 0): # =
+                    val = 0
+                elif np.any(np.array(cross_piece) == 0): # x
+                    val = 1
+                print(f"Border classification for ({i}, {j}, horizontal): {val}")
+                horizontal_borders.append(Border(i, j, val, True))
+            borders.append(horizontal_borders)
+        return borders
+
     
     def convert_to_binary(self, image: Image.Image) -> np.ndarray:
         """
@@ -240,15 +327,8 @@ class TangoVisionBot(VisionBot):
                 y = self.offsets[0][1] + self.offsets[1][1] + i * piece_height + piece_height // 2
                 row_coords.append((x, y))
             self.cell_coordinates.append(row_coords)
-        borders = []
-        for i in range(len(border_pieces)):
-            row_borders = []
-            for j in range(len(border_pieces[i])):
-                border_image = border_pieces[i][j]
-                classification = self.classify_border(border_image, i, j, i % 2 == 1)
-                row_borders.append(Border(i // 2, j, classification, i % 2 == 1))
-            borders.append(row_borders)
-        return Tango(cells, borders)
+        
+        return Tango(cells, self.get_borders(grid_size, piece_width, piece_height))
 
     def apply_changes(self, puzzle: Tango):
         """
