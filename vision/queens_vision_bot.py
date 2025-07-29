@@ -84,7 +84,7 @@ class QueensVisionBot(VisionBot):
         image_array[image_array <= 20] = 0
         
         # Find a row where not all pixels are black
-        row_index = self.screenshot.height // 2
+        row_index = self.screenshot.height // 12 # Pick a row too large to avoid black pixels
         all_black = np.all(image_array[row_index, :] == 0)
         while all_black:
             row_index -= 1
