@@ -1,8 +1,11 @@
 from domain.tango.tango import Tango
 from domain.queens.queens import Queens
+from domain.zip.zip import Zip
 from domain.tango.cell import Cell as TangoCell
 from domain.queens.cell import Cell as QueensCell
+from domain.zip.cell import Cell as ZipCell
 from domain.tango.border import Border
+from domain.zip.number import Number
 
 class PuzzleParser:
     """
@@ -72,4 +75,16 @@ class PuzzleParser:
             cells.append(row_cells)
         return Queens(cells)
     
-    
+    def parse_zip(self, puzzle_str : str) -> Zip:
+        lines = puzzle_str.splitlines()
+        cells = []
+        numbers = []
+        for i in range(len(lines)):
+            row_cells = []
+            for j, char in enumerate(lines[i]):
+                row_cells.append(ZipCell(i, j, -1))
+            if char != ".":
+                number_value = ord(char) - ord('A') + 1
+                numbers.append(Number(i, j, number_value))
+            cells.append(row_cells)    
+        return Zip(cells, numbers)

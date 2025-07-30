@@ -1,18 +1,20 @@
 from encoding.tango.tango_encoder import TangoEncoder
 from encoding.queens.queens_encoder import QueensEncoder
+from encoding.zip.zip_encoder import ZipEncoder
 from vision.tango_vision_bot import TangoVisionBot
 from vision.queens_vision_bot import QueensVisionBot
+from vision.zip_vision_bot import ZipVisionBot
+from parser.puzzle_parser import PuzzleParser
 from z3 import Solver, sat
 import sys
 import time
 
-SUPPORTED_PUZZLES = ["tango", "queens"]
-
+SUPPORTED_PUZZLES = ["tango", "queens", "zip"]
 
 if __name__=="__main__":
     # Check number of args
     if len(sys.argv) != 2:
-        print("Usage: python main.py tango|queens")
+        print(f"Usage: python main.py {'|'.join(SUPPORTED_PUZZLES)}")
         sys.exit(1)
     puzzle_name = sys.argv[1].lower()
 
@@ -28,6 +30,16 @@ if __name__=="__main__":
         vision_bot = TangoVisionBot()
     elif puzzle_name == "queens":
         vision_bot = QueensVisionBot()
+    elif puzzle_name == "zip":
+        #vision_bot = ZipVisionBot()
+        file_name = "examples/zip/1.txt"
+        file_content = None
+        with open(file_name, 'r') as file:
+            file_content = file.read()
+        parser = PuzzleParser()
+        puzzle = parser.parse_zip(file_content)
+        print(puzzle.get_board())
+        sys.exit(0)
 
     print("Waiting 3 seconds before taking a screenshot...")
     time.sleep(3)  # Wait for 3 seconds before taking a screenshot
@@ -43,6 +55,8 @@ if __name__=="__main__":
         encoder_class = TangoEncoder
     elif puzzle_name == "queens":
         encoder_class = QueensEncoder
+    elif puzzle_name == "zip":
+        encoder_class = ZipEncoder
     
     encoder_class.encode(solver, puzzle)
 
