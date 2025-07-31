@@ -28,6 +28,12 @@ class Zip(Puzzle):
             if number.get_row() == row and number.get_col() == col:
                 return number
         return None
+    
+    def get_last_number(self) -> int:
+        """
+        Get the last number in the puzzle.
+        """
+        return len(self.numbers)
 
     def get_board(self):
         board_str = ""

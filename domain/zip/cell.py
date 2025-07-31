@@ -13,8 +13,6 @@ class Cell:
         self.id = Int(f"cell_{row}_{col}")
 
     def update_value(self, val: int):
-        if val not in [-1, 0, 1]:
-            raise ValueError(f"Invalid cell value: {val}")
         self.val = val
 
     def get_row(self) -> int:
@@ -22,6 +20,9 @@ class Cell:
 
     def get_col(self) -> int:
         return self.col
+
+    def get_variable(self):
+        return self.id
 
     def get_value_str(self) -> str:
         if self.val == -1:
@@ -34,3 +35,5 @@ class Cell:
             return "U"
         elif self.val == 3:
             return "D"
+        elif self.val == 4:
+            return "X"

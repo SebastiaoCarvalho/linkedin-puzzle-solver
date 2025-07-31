@@ -83,8 +83,8 @@ class PuzzleParser:
             row_cells = []
             for j, char in enumerate(lines[i]):
                 row_cells.append(ZipCell(i, j, -1))
-            if char != ".":
-                number_value = ord(char) - ord('A') + 1
-                numbers.append(Number(i, j, number_value))
-            cells.append(row_cells)    
+                if char != ".":
+                    number_value = ord(char) - ord('A') + 1
+                    numbers.append(Number(i, j, number_value))
+            cells.append(row_cells)
         return Zip(cells, numbers)

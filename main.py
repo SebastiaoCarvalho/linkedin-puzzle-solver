@@ -39,6 +39,20 @@ if __name__=="__main__":
         parser = PuzzleParser()
         puzzle = parser.parse_zip(file_content)
         print(puzzle.get_board())
+        solver = Solver()
+        ZipEncoder.encode(solver, puzzle)
+        if solver.check() == sat:
+            model = solver.model()
+            cells = puzzle.get_cells()
+            for var in model:
+                var_split = str(var).split('_')
+                row = int(var_split[1])
+                col = int(var_split[2])
+                cell = cells[row][col]
+                cell.update_value(model[var])
+            print(puzzle.get_board())
+        else:
+            print("No solution found.")
         sys.exit(0)
 
     print("Waiting 3 seconds before taking a screenshot...")
