@@ -13,6 +13,11 @@
 pip install -r requirements.txt
 ```
 
+To be able to take screenshots you need to run the following:
+```bash
+sudo apt install gnome-screenshot
+```
+
 ## Usage
 
 First, log in to Linkedin and choose the puzzle you want to solve. Then, run the following command:

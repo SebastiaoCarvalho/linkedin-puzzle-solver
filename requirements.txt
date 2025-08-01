@@ -2,3 +2,5 @@ numpy==2.1.1
 opencv-python==4.10.0.84
 z3-solver==4.13.2.0
 pillow==11.3.0
+PyAutoGUI==0.9.54
+pynput==1.8.1
