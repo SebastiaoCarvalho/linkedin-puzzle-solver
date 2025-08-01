@@ -13,7 +13,7 @@ class ValueRestrictionsEncoder(Encoder):
         for row in cells:
             for cell in row:
                 value_var = cell.get_variable()
-                if puzzle.exists_number(cell.get_row(), cell.get_col()) and puzzle.get_number(cell.get_row(), cell.get_col()).get_value() == puzzle.get_last_number():
+                if puzzle.exists_number(cell.get_row(), cell.get_col()) and puzzle.get_number(cell.get_row(), cell.get_col()).get_value() == puzzle.get_last_number().get_value():
                     # Last number should not have any operation
                     solver.add(value_var == 4)  # Assuming 4 represents 'X' (no operation)
                 else:

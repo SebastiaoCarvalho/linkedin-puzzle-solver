@@ -4,6 +4,8 @@ from domain.zip.zip import Zip
 from encoding.zip.border_restrictions import BorderRestrictionsEncoder
 from encoding.zip.value_restrictions import ValueRestrictionsEncoder
 from encoding.zip.path_restrictions import PathRestrictionsEncoder
+from encoding.zip.no_loops import NoLoopsEncoder
+from encoding.zip.order import OrderEncoder
 
 class ZipEncoder(Encoder):
     """
@@ -15,4 +17,5 @@ class ZipEncoder(Encoder):
         BorderRestrictionsEncoder.encode(solver, puzzle)
         ValueRestrictionsEncoder.encode(solver, puzzle)
         PathRestrictionsEncoder.encode(solver, puzzle)
-        
+        NoLoopsEncoder.encode(solver, puzzle)
+        OrderEncoder.encode(solver, puzzle)

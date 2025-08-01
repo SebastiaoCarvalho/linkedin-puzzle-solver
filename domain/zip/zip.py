@@ -1,6 +1,7 @@
 from domain.puzzle import Puzzle
 from domain.zip.cell import Cell
 from domain.zip.number import Number
+from z3 import IntSort, BoolSort, Function
 
 class Zip(Puzzle):
     """
@@ -10,6 +11,10 @@ class Zip(Puzzle):
     def __init__(self, cells: list[list[Cell]], numbers: list[Number]):
         self.cells = cells
         self.numbers = numbers
+        self.reach = Function("Reach", IntSort(), IntSort(), IntSort(), IntSort(), BoolSort()) # You can reach Y from X
+
+    def get_reach(self):
+        return self.reach
 
     def get_cells(self):
         return self.cells
@@ -29,12 +34,27 @@ class Zip(Puzzle):
                 return number
         return None
     
-    def get_last_number(self) -> int:
+    def get_numbers_sorted(self) -> list[Number]:
+        """
+        Get the numbers sorted by their value.
+        """
+        return sorted(self.numbers, key=lambda number: number.get_value())
+    
+    def get_first_number(self) -> Number:
+        """
+        Get the first number in the puzzle.
+        """
+        return self.numbers[0] 
+
+    def get_last_number(self) -> Number:
         """
         Get the last number in the puzzle.
         """
-        return len(self.numbers)
-
+        max_number = len(self.numbers)
+        for number in self.numbers:
+            if number.get_value() == max_number:
+                return number
+    
     def get_board(self):
         board_str = ""
         for row in self.cells:

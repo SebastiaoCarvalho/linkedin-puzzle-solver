@@ -46,6 +46,8 @@ if __name__=="__main__":
             cells = puzzle.get_cells()
             for var in model:
                 var_split = str(var).split('_')
+                if len(var_split) != 3:
+                    continue
                 row = int(var_split[1])
                 col = int(var_split[2])
                 cell = cells[row][col]

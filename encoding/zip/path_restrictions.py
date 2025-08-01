@@ -24,7 +24,7 @@ class PathRestrictionsEncoder(Encoder):
                     if cell.get_col() < len(cells[0]) - 1:
                         solver.add(cells[cell.get_row()][cell.get_col() + 1].get_variable() != 0)
                 # Case where it's last number cell
-                elif puzzle.exists_number(cell.get_row(), cell.get_col()) and puzzle.get_number(cell.get_row(), cell.get_col()).get_value() == puzzle.get_last_number():
+                elif puzzle.exists_number(cell.get_row(), cell.get_col()) and puzzle.get_number(cell.get_row(), cell.get_col()).get_value() == puzzle.get_last_number().get_value():
                     pass # Value encoding already handles this
                 # Case where it's not first or last number cell
                 else:
